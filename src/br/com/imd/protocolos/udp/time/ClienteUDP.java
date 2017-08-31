@@ -1,4 +1,4 @@
-package br.com.imd.protocolos.udp.echo.main;
+package br.com.imd.protocolos.udp.time;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -10,10 +10,11 @@ public class ClienteUDP {
 	static Scanner leitorTeclado = new Scanner(System.in);
 	
 	public static void main(String[] args) throws Exception {
-		int porta = 3737;
+		int porta = 7777;
 		String mensagem = "";
 		
-		mensagem = "Manda a hora aí!";
+		System.out.print("Digite a mensagem para enviar ao servidor: ");
+		mensagem = leitorTeclado.nextLine();
 
 		byte[] dadosEnviados = mensagem.getBytes();
 		byte[] dadosRecebidos = new byte[512];
