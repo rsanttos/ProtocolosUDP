@@ -1,37 +1,30 @@
-package br.com.imd.protocolos.udp.echo.main;
+package br.com.imd.protocolos.udp.echo;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.util.Date;
 
 public class ServidorUDP {
-	@SuppressWarnings("deprecation")
 	public static void main(String[] args) throws Exception {
-		int porta = 3737;
+		int porta = 7777;
 		byte[] dadosRecebidos = new byte[512];
 		byte[] dadosResposta;
 		
 		DatagramSocket socketServidor = new DatagramSocket(porta);
-		System.out.println("Servidor UDP em execução na porta " + porta + "...");
+		System.out.println("Servidor UDP em execuÃ§Ã£o na porta " + porta + "...");
 
 		DatagramPacket pacoteRecebido = new DatagramPacket(dadosRecebidos, dadosRecebidos.length);
-		socketServidor.receive(pacoteRecebido); // método bloqueante
+		socketServidor.receive(pacoteRecebido); // mÃ©todo bloqueante
 
-		System.out.println("Cliente " + pacoteRecebido.getAddress() + " disse: " + new String(dadosRecebidos));
+		System.out.println(new String(dadosRecebidos));
 
-		Date data = new Date();
-		Long milissegundos = Date.UTC(data.getYear(), data.getMonth(), data.getDate(), data.getHours(), data.getMinutes(), data.getSeconds());
-		
-		dadosResposta = String.valueOf(milissegundos).getBytes();
+		dadosResposta = new String(dadosRecebidos).getBytes();
 		
 		InetAddress hostDestinoResposta = pacoteRecebido.getAddress();
 		int portaDestinoResposta = pacoteRecebido.getPort();
 		
 		DatagramPacket pacoteResposta = new DatagramPacket(dadosResposta, dadosResposta.length, hostDestinoResposta, portaDestinoResposta);
 		socketServidor.send(pacoteResposta);
-		
-		System.out.println("Data: " + data + " enviada no formato: " + milissegundos);
 
 		socketServidor.close();
 	}
