@@ -1,4 +1,4 @@
-package br.com.imd.protocolos.udp.echo.time;
+package br.com.imd.protocolos.udp.time;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -22,7 +22,7 @@ public class ServidorUDP {
 
 		Date data = new Date();
 		Long milissegundos = Date.UTC(data.getYear(), data.getMonth(), data.getDate(), data.getHours(), data.getMinutes(), data.getSeconds());
-		
+		milissegundos = milissegundos / 1000;
 		dadosResposta = String.valueOf(milissegundos).getBytes();
 		
 		InetAddress hostDestinoResposta = pacoteRecebido.getAddress();

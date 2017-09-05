@@ -32,29 +32,5 @@ public class ServidorUDP {
 			
 			Thread.sleep(5000);
 		}
-
-		// DatagramPacket pacoteRecebido = new DatagramPacket(dadosRecebidos,
-		// dadosRecebidos.length);
-		// socketServidor.receive(pacoteRecebido); // método bloqueante
-		//
-		// System.out.println("Cliente " + pacoteRecebido.getAddress() + "
-		// disse: " + new String(dadosRecebidos));
-		//
-		// Date data = new Date();
-		// Long milissegundos = Date.UTC(data.getYear(), data.getMonth(),
-		// data.getDate(), data.getHours(), data.getMinutes(),
-		// data.getSeconds());
-		//
-		// dadosResposta = String.valueOf(milissegundos).getBytes();
-		//
-		// InetAddress hostDestinoResposta = pacoteRecebido.getAddress();
-		// int portaDestinoResposta = pacoteRecebido.getPort();
-		//
-		// DatagramPacket pacoteResposta = new DatagramPacket(dadosResposta,
-		// dadosResposta.length, hostDestinoResposta, portaDestinoResposta);
-		// socketServidor.send(pacoteResposta);
-		//
-		// System.out.println("Data: " + data + " enviada no formato: " +
-		// milissegundos);
 	}
 }

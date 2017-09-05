@@ -1,4 +1,4 @@
-package br.com.imd.protocolos.udp.echo.time;
+package br.com.imd.protocolos.udp.time;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;

@@ -11,7 +11,7 @@ public class ServidorUDP {
 		byte[] dadosResposta;
 		
 		DatagramSocket socketServidor = new DatagramSocket(porta);
-		System.out.println("Servidor UDP em execu√ß√£o na porta " + porta + "...");
+		System.out.println("Servidor UDP em execuÁ„o na porta " + porta + "...");
 
 		DatagramPacket pacoteRecebido = new DatagramPacket(dadosRecebidos, dadosRecebidos.length);
 		socketServidor.receive(pacoteRecebido); // m√©todo bloqueante
