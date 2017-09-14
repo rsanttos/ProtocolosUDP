@@ -24,7 +24,7 @@ public class ServidorUDP {
 		int porta = 3737;
 		
 		// Primeiros dados a serem enviados 
-		// Formato: TAMANHO_#_MILISSEGUNDOS
+		// Formato: IMD0406%$TAMANHO_#_MILISSEGUNDOS
 		byte[] dadosIniciaisMensagem;
 		
 		byte[] dadosTotaisImagem;
@@ -49,7 +49,7 @@ public class ServidorUDP {
 			int tamanhoTotalPacote = dadosTotaisImagem.length;
 			int qtdPedacos = tamanhoTotalPacote/LIMITE_TEORICO;
 			
-			String mensagemInicial = String.valueOf(tamanhoTotalPacote) + "_#_" + milissegundos;
+			String mensagemInicial = "IMD0406%$" + String.valueOf(tamanhoTotalPacote) + "_#_" + milissegundos;
 			
 			dadosIniciaisMensagem = mensagemInicial.getBytes();
 			

@@ -25,7 +25,8 @@ public class ClienteUDP {
 		socketGrupo.joinGroup(enderecoGrupo);
 
 		byte[] dadosRecebidos = new byte[LIMITE_TEORICO];
-		byte[] dadosTotaisImagem;
+		byte[] dadosAux = new byte[LIMITE_TEORICO];
+		byte[] dadosTotaisImagem = null;
 		ByteArrayOutputStream arrayAux = new ByteArrayOutputStream();
 
 		DatagramPacket pacoteRecebido = new DatagramPacket(dadosRecebidos, dadosRecebidos.length);
@@ -36,27 +37,28 @@ public class ClienteUDP {
 		
 		while (true) {
 			socketGrupo.receive(pacoteRecebido);
+			
 			String mensagem = new String(dadosRecebidos);
 			
-			// Lendo mensagem inicial no formato TAMANHO_#_MILISSEGUNDOS
+			// Lendo mensagem inicial no formato IMD0406%$TAMANHO_#_MILISSEGUNDOS
 			if(isMensagemInicial(mensagem)){
 				tamanhoTotalPacote = retornaTamanhoMensagemInicial(mensagem);
+				dadosTotaisImagem = new byte[tamanhoTotalPacote];
 				qtdPedacos = tamanhoTotalPacote / LIMITE_TEORICO;
-				milissegundos = retornaMilissegundosMensagemInicial(mensagem);
-			} else {
-				arrayAux.write(dadosRecebidos);
-				dadosTotaisImagem = arrayAux.toByteArray();
-				
-				if(dadosTotaisImagem.length >= tamanhoTotalPacote){
-					lerArquivoRecebido(dadosTotaisImagem);
-					arrayAux = new ByteArrayOutputStream();
-					dadosTotaisImagem = null;
+				milissegundos = retornaMilissegundosMensagemInicial(mensagem);				
+			} else {				
+				for(int j = 0 ; j < qtdPedacos ; j++){
+					int posicaoInicialArrayDestino = j * LIMITE_TEORICO;
+					socketGrupo.receive(pacoteRecebido);		
+					System.arraycopy(dadosRecebidos, 0, dadosTotaisImagem, posicaoInicialArrayDestino, dadosRecebidos.length);		
 				}
+				lerArquivoRecebido(dadosTotaisImagem);
 			}
 		}
 	}
 	
 	public static int retornaTamanhoMensagemInicial(String mensagemInicial){
+		mensagemInicial = mensagemInicial.substring(9, mensagemInicial.length());
 		String tamanho = "";
 		int indice = mensagemInicial.indexOf("_#_");
 		
@@ -68,6 +70,7 @@ public class ClienteUDP {
 	}
 
 	public static String retornaMilissegundosMensagemInicial(String mensagemInicial){
+		mensagemInicial = mensagemInicial.substring(9, mensagemInicial.length());
 		String milissegundos = "";
 		int indice = mensagemInicial.indexOf("_#_");
 		
@@ -78,8 +81,8 @@ public class ClienteUDP {
 		return milissegundos;
 	}
 	
-	public static boolean isMensagemInicial(String mensagem){		
-		return mensagem.contains("_#_");
+	public static boolean isMensagemInicial(String mensagem){	
+		return mensagem.startsWith("IMD0406%$");
 	}
 
 	public static void lerArquivoRecebido(byte[] dadosRecebidos) throws IOException {
