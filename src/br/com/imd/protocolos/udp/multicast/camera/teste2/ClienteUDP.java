@@ -1,6 +1,5 @@
 package br.com.imd.protocolos.udp.multicast.camera.teste2;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -8,19 +7,16 @@ import java.io.OutputStream;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
-
-import org.apache.commons.lang.ArrayUtils;
 
 public class ClienteUDP {
 
 	static Scanner leitorTeclado = new Scanner(System.in);
-	
+
 	public static int LIMITE_TEORICO = 64000;
-	
-	public static int TAMANHO_MAXIMO_IMAGEM = 2000000;
 
 	public static void main(String[] args) throws Exception {
 		int portaServidor = 4443;
@@ -31,72 +27,53 @@ public class ClienteUDP {
 		socketGrupo.joinGroup(enderecoGrupo);
 
 		byte[] dadosRecebidos = new byte[LIMITE_TEORICO];
-		byte[] dadosParciais = null;
-		byte[] dadosTotaisImagem = null;
-		ByteArrayOutputStream arrayAux = new ByteArrayOutputStream();
+		List<Byte> bytesTotaisImagem = new LinkedList<Byte>();
 
 		DatagramPacket pacoteRecebido = new DatagramPacket(dadosRecebidos, dadosRecebidos.length);
+		
+		MyFrame frame = new MyFrame();
 
-		int tamanhoTotalPacote = 0;
-		int qtdPedacos = 0;
-		String milissegundos = "";
-		
-		boolean isSegmentoFinal = false;
-		
 		while (true) {
 			socketGrupo.receive(pacoteRecebido);
 			
-			String mensagem = new String(dadosRecebidos);
-			
-			if(dadosRecebidos[0] == 'F'){
-				isSegmentoFinal = true;
+			for(int i = 0 ; i < dadosRecebidos.length ; i++){
+				bytesTotaisImagem.add((byte) dadosRecebidos[i]);
 			}
-
-			dadosParciais =  ArrayUtils.addAll(dadosParciais, dadosRecebidos);
 			
-			if(isSegmentoFinal){
-				dadosTotaisImagem = ArrayUtils.addAll(dadosTotaisImagem, dadosParciais);
-				lerArquivoRecebido(dadosTotaisImagem);
-				dadosRecebidos = new byte[LIMITE_TEORICO];
-				//dadosTotaisImagem = new byte[TAMANHO_MAXIMO_IMAGEM];
-			}
+			if (bytesTotaisImagem.get(bytesTotaisImagem.size() - 1) == 'F') {
+				File imagemRecebida = geraImagem(converteArrayDinamicoEmEstatico(bytesTotaisImagem));
+				bytesTotaisImagem = new LinkedList<Byte>();
+				frame.atualizaImagem(imagemRecebida.getName());
+				//apagaImagem(imagemRecebida);
+			}		
 		}
-	}
-	
-	public static int retornaTamanhoMensagemInicial(String mensagemInicial){
-		mensagemInicial = mensagemInicial.substring(9, mensagemInicial.length());
-		String tamanho = "";
-		int indice = mensagemInicial.indexOf("_#_");
-		
-		for(int i = 0 ; i < indice ; i++){
-			tamanho += mensagemInicial.charAt(i);
-		}
-		System.out.println(tamanho);
-		return Integer.valueOf(tamanho);
 	}
 
-	public static String retornaMilissegundosMensagemInicial(String mensagemInicial){
-		mensagemInicial = mensagemInicial.substring(9, mensagemInicial.length());
-		String milissegundos = "";
-		int indice = mensagemInicial.indexOf("_#_");
-		
-		for(int i = indice + 3 ; i < mensagemInicial.length() ; i++){
-			milissegundos += mensagemInicial.charAt(i);
-		}
-		System.out.println(milissegundos);
-		return milissegundos;
-	}
-	
-	public static boolean isMensagemInicial(String mensagem){	
-		return mensagem.startsWith("IMD0406%$");
-	}
-
-	public static void lerArquivoRecebido(byte[] dadosRecebidos) throws IOException {
-		File arquivoRecebido = new File("arquivorecebidodenovo.png");
+	public static File geraImagem(byte[] dadosRecebidos) throws IOException {
+		Random random = new Random();
+		int nAleatorio = random.nextInt(10);
+		File arquivoRecebido = new File("imagemRecebida" + nAleatorio + ".png");
 		OutputStream os = new FileOutputStream(arquivoRecebido);
 		os.write(dadosRecebidos);
 		os.flush();
-		System.out.println("Imagem criada.");
+		System.out.println("Imagem recebida e gravada em disco.");
 		os.close();
+		return arquivoRecebido;
+	}
+	
+	public static void apagaImagem(File imagem){
+		imagem.delete();
+		System.out.println("Imagem recebida, mostrada e apagada do disco.");
+	}
+	
+	public static byte[] converteArrayDinamicoEmEstatico(List<Byte> arrayDinamico){
+		int tamanhoArray = arrayDinamico.size();
+		byte[] arrayEstatico = new byte[tamanhoArray];
+		int i = 0;
+		for(Byte b : arrayDinamico){
+			arrayEstatico[i] = b;
+			i++;
+		}
+		return arrayEstatico;
 	}
 }

@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.util.Date;
 
 import javax.imageio.ImageIO;
 
@@ -17,16 +16,15 @@ import com.github.sarxos.webcam.WebcamResolution;
 
 public class ServidorUDP {
 	@SuppressWarnings("deprecation")
-	
+
 	public static int LIMITE_TEORICO = 64000;
-	
+
 	public static void main(String[] args) throws Exception {
 		int porta = 3737;
-		
-		// Primeiros dados a serem enviados 
+
+		// Primeiros dados a serem enviados
 		// Formato: IMD0406%$TAMANHO_#_MILISSEGUNDOS
-		byte[] dadosIniciaisMensagem;
-		
+		byte[] dadosCabecalho;
 		byte[] dadosTotaisImagem;
 		byte[] dadosParciais;
 
@@ -37,38 +35,35 @@ public class ServidorUDP {
 		int portaClientes = 4443;
 
 		while (true) {
-			Date data = new Date();
-			Long milissegundos = Date.UTC(data.getYear(), data.getMonth(), data.getDate(), data.getHours(),
-					data.getMinutes(), data.getSeconds());
-			milissegundos = milissegundos / 1000;
 
 			File imagemGerada = geraImagem();
 
 			dadosTotaisImagem = transformaArquivoEmByte(imagemGerada);
-			
+
+			// Preparando mensagem cabeçalho
 			int tamanhoTotalPacote = dadosTotaisImagem.length;
-			int qtdPedacos = tamanhoTotalPacote/LIMITE_TEORICO;
-			
+			int qtdPedacos = tamanhoTotalPacote / LIMITE_TEORICO;
+
 			// Preparando mensagem com a imagem
-			int indiceDadosTotais = 0;			
-			for(int i = 0 ; i < qtdPedacos ; i++){
+			int indiceDadosTotais = 0;
+			for (int i = 0; i <= qtdPedacos; i++) {
 				int j = 0;
 				dadosParciais = new byte[LIMITE_TEORICO];
-				
-				if(i + 1 == qtdPedacos){
-					dadosParciais[0] = 'F';
-					j = 1;
-				}
-				
-				while(j < LIMITE_TEORICO && indiceDadosTotais < tamanhoTotalPacote){
+
+				while (j < LIMITE_TEORICO && indiceDadosTotais < tamanhoTotalPacote) {
 					dadosParciais[j] = dadosTotaisImagem[indiceDadosTotais];
 					indiceDadosTotais++;
 					j++;
-				}	
+				}
+
+				System.out.println(tamanhoTotalPacote - indiceDadosTotais);
 				
-				DatagramPacket pacoteEnviado = new DatagramPacket(dadosParciais, dadosParciais.length, enderecoGrupoClientes,
-						portaClientes);	
-				socketServidor.send(pacoteEnviado);
+				if (i == qtdPedacos) {
+					dadosParciais[dadosParciais.length - 1] = 'F';
+					j = 1;
+				}
+				DatagramPacket pacoteComSegmento = new DatagramPacket(dadosParciais, dadosParciais.length, enderecoGrupoClientes, portaClientes);
+				socketServidor.send(pacoteComSegmento);
 			}
 
 			Thread.sleep(1000);
@@ -93,7 +88,7 @@ public class ServidorUDP {
 
 	public static File geraImagem() throws IOException {
 		Webcam webcam = Webcam.getDefault();
-		webcam.setCustomViewSizes(new Dimension[]{WebcamResolution.HD720.getSize()});
+		webcam.setCustomViewSizes(new Dimension[] { WebcamResolution.HD720.getSize() });
 		webcam.setViewSize(WebcamResolution.HD720.getSize());
 		webcam.open();
 		File imagemGerada = new File("imagem.png");
