@@ -1,0 +1,16 @@
+Especificação do Protocolo e Instruções para uso
+Desenvolvido por: Ramon Santos Malaquias, 2017.
+
+O presente trabalho consiste no desenvolvimento de uma aplicação Java responsável por realizar o processo de monitoramento e visualização de dados obtidos através de câmeras de vigilância e disponibilizados através de uma infraestrutura de rede.
+
+* A solução está presente no seguinte pacote do projeto anexado à tarefa:
+	-> br.com.imd.protocolos.udp.multicast.camera.v1
+
+O protocolo responsável pelo envio das imagens da câmera envia um frame por segundo (1 fps) e, considerando o limite teórico para envio de dados (64Kb), ele trata as imagens que possuam tamanho superior ao limite supracitado, enviando segmentos que possuam no máximo 64kb. Quando o segmento a ser enviado por o último para aquele frame, o protocolo envia uma identificação para o cliente, onde os quatro últimos bytes daquele pacote irão conter a sequência 'F$&%'. 
+
+O cliente, por sua vez, está preparado para receber os dados dessa forma, identificar quando o segmento for o último para aquele frame, montar a imagem recebida e mostrar na tela para o usuário.
+
+
+* Instruções para uso:
+	1. Executar o arquivo ServidorUDP
+	2. Executar o arquivo ClienteUDP

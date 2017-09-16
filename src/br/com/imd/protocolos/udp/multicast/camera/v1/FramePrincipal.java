@@ -15,7 +15,7 @@ public class FramePrincipal extends JFrame {
 	private JLabel labelImagem;
 	
 	public FramePrincipal() {
-		super("Teste Imagem");
+		super("WebCam");
 
 		setLayout(new BorderLayout());
 		setPreferredSize(new Dimension(1200, 800));
